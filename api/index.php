@@ -96,25 +96,24 @@ class API extends REST
     }
     private function signup()
     {
-        $username = $_GET['username'];
-        $pass = $_GET['password'];
-        $email = $_GET['email'];
-        if (isset($username) and isset($pass) and isset($email)) {
+        $username = $_POST['username'];
+        $pass = $_POST['password'];
+        $email = $_POST['email'];
+        if ($this->get_request_method() == 'POST' and isset($username) and isset($pass) and isset($email)) {
             $signup = new Signup($username, $pass, $email);
             $res = $signup->Signup();
             if ($res) {
-                $data = ["status" => "success",];
+                $data = [
+                    "status" => "success",
+                    "id" => $signup->getUserID(),
+                ];
                 $data = $this->json($data);
                 $this->response($data, 200);
-            } else {
-                $data = ["status" => "failed",];
-                $data = $this->json($data);
-                $this->response($data, 400);
             }
         } else {
-            $data = ["status" => "No paramters passed",];
+            $data = ["error" => "Bad Request",];
             $data = $this->json($data);
-            $this->response($data, 200);
+            $this->response($data, 400);
         }
     }
 

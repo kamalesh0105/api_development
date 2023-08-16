@@ -7,6 +7,7 @@ class Signup
     private $username;
     private $password;
     private $email;
+    private $userid;
 
     public function __construct($username, $password, $email)
     {
@@ -23,10 +24,12 @@ class Signup
                 'cost' => 7,
             ];
             $hashpass = password_hash($this->password, PASSWORD_BCRYPT, $option);
-
-            $query = "INSERT INTO `auth` (`username`, `password`, `email`, `active`)
-            VALUES ('$this->username', '$hashpass', '$this->email', '1')";
+            $bytes = random_bytes(16);
+            $token = bin2hex($bytes); //to verify users over email
+            $query = "INSERT INTO `auth` (`username`, `password`, `email`, `active`,`token`)
+            VALUES ('$this->username', '$hashpass', '$this->email', '1','$token')";
             if ($this->conn->query($query)) {
+                $this->userid = mysqli_insert_id($this->conn);
                 return true;
             } else {
                 return false;
@@ -35,5 +38,10 @@ class Signup
             return false;
             //throw new Exception("username and pass is not set");
         }
+    }
+
+    public function getUserID()
+    {
+        return $this->userid;
     }
 }
